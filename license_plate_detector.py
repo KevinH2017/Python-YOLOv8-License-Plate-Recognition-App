@@ -66,7 +66,7 @@ while ret:
             # cv2.waitKey(0)
 
             # Reads the license plate numbers
-            license_plate_text, license_plate_text_score = read_license_plate(license_plate_crop_thresh)        # Exits with no error here
+            license_plate_text, license_plate_text_score = read_license_plate(license_plate_crop_thresh)
 
             # Only creates bounding boxes and their scores if license plate text is detected
             if license_plate_text is not None:
