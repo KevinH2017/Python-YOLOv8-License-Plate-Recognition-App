@@ -1,7 +1,6 @@
 # Python YOLOv8 License Plate Recognition App
  Uses Python YOLOv8 to read the license plates of cars in the video.
 
-1. Run license_plate_detector.py
-2. Run add_missing_data.py
-3. Run visualize.py
-4. Output video is license_plate_output.pm4
+1. Create folder "videos" and place mp4 in it
+2. Run Combined_License_Plate_Detector_v2.py
+3. Output video is "video_output" folder
