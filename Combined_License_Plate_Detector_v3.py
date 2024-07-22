@@ -127,6 +127,18 @@ Tk().withdraw()
 # Show an "Open" dialog box and returns the absolute path to the selected file
 filename = askopenfilename() 
 
+# Obtaining the creation time (in seconds) of the file/folder (datatype=int)
+t = os.path.getctime(filename)
+ 
+# Converting the time to an epoch string
+t_str = time.ctime(t)
+ 
+# Converting the string to a time object
+t_obj = time.strptime(t_str)
+ 
+# Transforming the time object to a timestamp of ISO 8601 format, YYYYMMDD-HHMMSS format
+timestr = time.strftime("%Y-%m-%d_%H%M%S", t_obj)
+
 results = {}
 
 mot_tracker = Sort()
@@ -199,19 +211,19 @@ while ret:
 # Creates new file names if the name already exists
 filename_licensePlates = "licensePlates"
 counter_1 = 0
-while os.path.exists(f"./csv/{filename_licensePlates}_{counter_1}.csv"):
+while os.path.exists(f"./csv/{timestr}_{filename_licensePlates}_{counter_1}.csv"):
     counter_1 += 1
 
 # Writes the results to csv file
-write_csv(results, f'./csv/{filename_licensePlates}_{counter_1}.csv')
-print(f"Created {filename_licensePlates}_{counter_1}.csv!")
-print(f"Results written to {filename_licensePlates}_{counter_1}.csv!")
-print(f"Processing {filename_licensePlates}_{counter_1}.csv...")
+write_csv(results, f'./csv/{timestr}_{filename_licensePlates}_{counter_1}.csv')
+print(f"Created {timestr}_{filename_licensePlates}_{counter_1}.csv!")
+print(f"Results written to {timestr}_{filename_licensePlates}_{counter_1}.csv!")
+print(f"Processing {timestr}_{filename_licensePlates}_{counter_1}.csv...")
 
 ### Interpolates and creates Bounding Boxes ###
 
 # Load the CSV file
-with open(f'./csv/{filename_licensePlates}_{counter_1}.csv', 'r') as file:
+with open(f'./csv/{timestr}_{filename_licensePlates}_{counter_1}.csv', 'r') as file:
     reader = csv.DictReader(file)
     data = list(reader)
 
@@ -219,25 +231,25 @@ with open(f'./csv/{filename_licensePlates}_{counter_1}.csv', 'r') as file:
 interpolated_data = interpolate_bounding_boxes(data)
 
 # Creates new file names if the name already exists
-filename_interpolated = "licensePlates_interpolated"
+filename_interpolated = "interpolated"
 counter_2 = 0
-while os.path.exists(f"./csv/{filename_interpolated}_{counter_2}.csv"):
+while os.path.exists(f"./csv/{timestr}_{filename_interpolated}_{counter_2}.csv"):
     counter_2 += 1
 
 # Write updated data to a new CSV file
 header = ['frame_nmr', 'car_id', 'car_bbox', 'license_plate_bbox', 'license_plate_bbox_score', 'license_number', 'license_number_score']
-with open(f'./csv/{filename_interpolated}_{counter_2}.csv', 'w', newline='') as file:
+with open(f'./csv/{timestr}_{filename_interpolated}_{counter_2}.csv', 'w', newline='') as file:
     writer = csv.DictWriter(file, fieldnames=header)
     writer.writeheader()
     writer.writerows(interpolated_data)
 
-print(f"{filename_interpolated}_{counter_2}.csv created!")
-print(f"Processing {filename_interpolated}_{counter_2}.csv...")
-print(f"Creating {filename_interpolated}_{counter_2}.mp4...")
+print(f"{timestr}_{filename_interpolated}_{counter_2}.csv created!")
+print(f"Processing {timestr}_{filename_interpolated}_{counter_2}.csv...")
+print(f"Creating {timestr}.mp4...")
 
 ### Processes licensePlates_interpolated.csv to create output mp4 that has license plate text in the video
 
-results = pd.read_csv(f'./csv/{filename_interpolated}_{counter_2}.csv')
+results = pd.read_csv(f'./csv/{timestr}_{filename_interpolated}_{counter_2}.csv')
 
 # Loads video
 cap = cv2.VideoCapture(filename)
@@ -248,13 +260,11 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-# Creates new file names if the name already exists
-interpolated_video = "license_plates_output"
 counter_3 = 0
-while os.path.exists(f"./video_output/{interpolated_video}_{counter_3}.mp4"):
+while os.path.exists(f"./video_output/{timestr}_{counter_3}.csv"):
     counter_3 += 1
 
-out = cv2.VideoWriter(f'./video_output/{interpolated_video}_{counter_3}.mp4', fourcc, fps, (width, height))
+out = cv2.VideoWriter(f'./video_output/{timestr}_{counter_3}.mp4', fourcc, fps, (width, height))
 
 license_plate = {}
 for car_id in np.unique(results['car_id']):
@@ -331,5 +341,5 @@ while ret:
 out.release()
 cap.release()
 
-print(f"{interpolated_video}_{counter_3}.mp4 created!")
+print(f"{timestr}_{counter_3}.mp4 created!")
 print("Check video_output folder for video!")
